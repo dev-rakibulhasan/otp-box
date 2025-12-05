@@ -96,7 +96,7 @@ async function processNextPhone() {
     // Open Facebook registration page
     const tab = await chrome.tabs.create({
       url: "https://www.facebook.com/r.php",
-      active: false,
+      active: true,
     });
 
     currentTabId = tab.id;
@@ -112,16 +112,13 @@ async function processNextPhone() {
     });
 
     sendLogToSidePanel(`Form filled for ${phoneNumber}`, "success");
-    sendLogToSidePanel(
-      `Waiting for navigation to confirmemail page...`,
-      "info"
-    );
+    sendLogToSidePanel(`Waiting for navigation to next page...`, "info");
 
     // Wait for navigation to confirmemail.php
     const navigatedToConfirm = await waitForConfirmEmailPage(tab.id);
 
     if (navigatedToConfirm) {
-      sendLogToSidePanel(`Navigated to confirm email page`, "success");
+      sendLogToSidePanel(`OTP sent to ${phoneNumber}`, "success");
       sendLogToSidePanel(`Waiting 3 seconds...`, "info");
 
       // Wait 3 seconds on the confirm email page
@@ -242,9 +239,9 @@ async function clearFacebookCookies() {
           name: cookie.name,
           storeId: cookie.storeId,
         });
-        console.log(`Removed cookie: ${cookie.name} from ${url}`);
+        // console.log(`Removed cookie: ${cookie.name} from ${url}`);
       } catch (error) {
-        console.error(`Failed to remove cookie ${cookie.name}:`, error);
+        // console.error(`Failed to remove cookie ${cookie.name}:`, error);
       }
     }
   }
@@ -268,9 +265,9 @@ async function clearFacebookCookies() {
         webSQL: true,
       }
     );
-    console.log("Cleared all Facebook browsing data");
+    // console.log("Cleared all Facebook browsing data");
   } catch (error) {
-    console.error("Failed to clear browsing data:", error);
+    // console.error("Failed to clear browsing data:", error);
   }
 }
 
@@ -598,13 +595,6 @@ function fillRegistrationForm(phoneNumber) {
       const dateOfBirth = getRandomDateBefore2000();
       const password = generateStrongPassword();
 
-      console.log("Starting form fill with:", {
-        firstName,
-        lastName,
-        dateOfBirth,
-        phoneNumber,
-      });
-
       // Wait a bit for page to fully load
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
@@ -614,7 +604,6 @@ function fillRegistrationForm(phoneNumber) {
         document.querySelector("#u_0_8_Ez");
       if (firstNameInput) {
         setInputValue(firstNameInput, firstName);
-        console.log("First name filled:", firstName);
       }
 
       // Fill last name
@@ -623,7 +612,6 @@ function fillRegistrationForm(phoneNumber) {
         document.querySelector("#u_0_a_sT");
       if (lastNameInput) {
         setInputValue(lastNameInput, lastName);
-        console.log("Last name filled:", lastName);
       }
 
       // Fill date of birth
@@ -632,7 +620,6 @@ function fillRegistrationForm(phoneNumber) {
         document.querySelector("#day");
       if (daySelect) {
         setSelectValue(daySelect, dateOfBirth.day.toString());
-        console.log("Day selected:", dateOfBirth.day);
       }
 
       const monthSelect =
@@ -640,7 +627,6 @@ function fillRegistrationForm(phoneNumber) {
         document.querySelector("#month");
       if (monthSelect) {
         setSelectValue(monthSelect, dateOfBirth.month.toString());
-        console.log("Month selected:", dateOfBirth.month);
       }
 
       const yearSelect =
@@ -648,7 +634,6 @@ function fillRegistrationForm(phoneNumber) {
         document.querySelector("#year");
       if (yearSelect) {
         setSelectValue(yearSelect, dateOfBirth.year.toString());
-        console.log("Year selected:", dateOfBirth.year);
       }
 
       // Select gender (Male = value 2)
@@ -656,7 +641,6 @@ function fillRegistrationForm(phoneNumber) {
       if (maleRadio) {
         maleRadio.checked = true;
         maleRadio.dispatchEvent(new Event("change", { bubbles: true }));
-        console.log("Gender selected: Male");
       }
 
       // Fill phone number/email
@@ -665,7 +649,6 @@ function fillRegistrationForm(phoneNumber) {
         document.querySelector("#u_0_h_Lz");
       if (contactInput) {
         setInputValue(contactInput, phoneNumber);
-        console.log("Phone number filled:", phoneNumber);
       }
 
       // Fill password
@@ -674,7 +657,6 @@ function fillRegistrationForm(phoneNumber) {
         document.querySelector("#password_step_input");
       if (passwordInput) {
         setInputValue(passwordInput, password);
-        console.log("Password filled");
       }
 
       // Wait a bit before submitting
@@ -686,7 +668,6 @@ function fillRegistrationForm(phoneNumber) {
         document.querySelector("#u_0_n_gw") ||
         document.querySelector('button[type="submit"]');
       if (signUpButton) {
-        console.log("Clicking sign up button...");
         signUpButton.click();
       }
     } catch (error) {
