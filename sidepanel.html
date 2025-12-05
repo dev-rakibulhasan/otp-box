@@ -20,47 +20,141 @@
         <p class="subtitle">OTP Automation</p>
       </div>
 
-      <div class="content">
-        <div class="input-section">
-          <label for="phoneNumbers">Enter Phone Numbers (one per line):</label>
-          <textarea
-            id="phoneNumbers"
-            placeholder="e.g.,&#10;+1234567890&#10;+0987654321&#10;+1122334455"
-            rows="8"
-          ></textarea>
-          <div class="phone-count">
-            <span id="phoneCount">0</span> phone numbers
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button class="tab-btn active" data-tab="sender">Sender</button>
+        <button class="tab-btn" data-tab="license">License</button>
+      </div>
+
+      <!-- Sender Tab -->
+      <div class="tab-content active" id="senderTab">
+        <div class="content">
+          <div class="input-section">
+            <label for="phoneNumbers"
+              >Enter Phone Numbers (one per line):</label
+            >
+            <textarea
+              id="phoneNumbers"
+              placeholder="e.g.,&#10;+1234567890&#10;+0987654321&#10;+1122334455"
+              rows="8"
+            ></textarea>
+            <div class="phone-count">
+              <span id="phoneCount">0</span> phone numbers
+            </div>
+          </div>
+
+          <div class="status-section">
+            <div class="status-card">
+              <div class="status-label">Status:</div>
+              <div id="status" class="status-value">Ready</div>
+            </div>
+            <div class="progress-card">
+              <div class="status-label">Progress:</div>
+              <div id="progress" class="status-value">0 / 0</div>
+            </div>
+          </div>
+
+          <div class="button-section">
+            <button id="startBtn" class="btn btn-primary">
+              <span class="btn-icon">▶</span>
+              Start
+            </button>
+            <button id="stopBtn" class="btn btn-danger" disabled>
+              <span class="btn-icon">⏹</span>
+              Stop
+            </button>
+          </div>
+
+          <div class="log-section">
+            <div class="log-header">
+              <span>Activity Log</span>
+              <button id="clearLogBtn" class="btn-clear">Clear</button>
+            </div>
+            <div id="log" class="log-content"></div>
           </div>
         </div>
+      </div>
 
-        <div class="status-section">
-          <div class="status-card">
-            <div class="status-label">Status:</div>
-            <div id="status" class="status-value">Ready</div>
-          </div>
-          <div class="progress-card">
-            <div class="status-label">Progress:</div>
-            <div id="progress" class="status-value">0 / 0</div>
+      <!-- License Tab -->
+      <div class="tab-content" id="licenseTab">
+        <div class="content">
+          <div class="license-section">
+            <h2>License Verification</h2>
+
+            <div class="license-status" id="licenseStatus">
+              <div class="status-icon">🔒</div>
+              <div class="status-text">No license activated</div>
+            </div>
+
+            <div class="license-form">
+              <div class="form-group">
+                <label for="licenseKey">License Key:</label>
+                <input
+                  type="text"
+                  id="licenseKey"
+                  class="input-field"
+                  placeholder="Enter your license key"
+                />
+              </div>
+
+              <button id="verifyLicenseBtn" class="btn btn-primary">
+                <span class="btn-icon">✓</span>
+                Verify License
+              </button>
+            </div>
+
+            <div class="license-info hidden" id="licenseInfo">
+              <h3>License Information</h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">Name:</span>
+                  <span class="info-value" id="licenseName">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Email:</span>
+                  <span class="info-value" id="licenseEmail">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Product:</span>
+                  <span class="info-value" id="licenseProduct">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Expires:</span>
+                  <span class="info-value" id="licenseExpire">-</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Status:</span>
+                  <span class="info-value" id="licenseStatusText">-</span>
+                </div>
+              </div>
+
+              <button id="deactivateLicenseBtn" class="btn btn-danger">
+                <span class="btn-icon">×</span>
+                Deactivate License
+              </button>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="button-section">
-          <button id="startBtn" class="btn btn-primary">
-            <span class="btn-icon">▶</span>
-            Start
+    <!-- License Modal -->
+    <div class="modal hidden" id="licenseModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">License Required</h3>
+          <button class="modal-close" id="modalClose">×</button>
+        </div>
+        <div class="modal-body">
+          <p id="modalMessage">
+            Please activate a valid license to use this feature.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="modalCancel">Cancel</button>
+          <button class="btn btn-primary" id="modalAction">
+            Go to License
           </button>
-          <button id="stopBtn" class="btn btn-danger" disabled>
-            <span class="btn-icon">⏹</span>
-            Stop
-          </button>
-        </div>
-
-        <div class="log-section">
-          <div class="log-header">
-            <span>Activity Log</span>
-            <button id="clearLogBtn" class="btn-clear">Clear</button>
-          </div>
-          <div id="log" class="log-content"></div>
         </div>
       </div>
     </div>

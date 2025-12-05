@@ -13,7 +13,8 @@
   ],
   "host_permissions": [
     "https://www.facebook.com/*",
-    "https://m.facebook.com/*"
+    "https://m.facebook.com/*",
+    "http://localhost/rh-license/*"
   ],
   "action": {
     "default_icon": {
