@@ -61,6 +61,8 @@ function updateStatus(status, isRunningState = false) {
     ? "status-value running"
     : status === "Stopped"
     ? "status-value stopped"
+    : status === "Completed"
+    ? "status-value completed"
     : "status-value";
 }
 

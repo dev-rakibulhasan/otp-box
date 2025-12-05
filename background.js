@@ -83,12 +83,12 @@ async function processNextPhone() {
   // Update progress
   sendMessageToSidePanel({
     action: "updateProgress",
-    current: currentIndex,
+    current: currentIndex + 1,
     total: phoneNumbers.length,
   });
 
   await chrome.storage.local.set({
-    currentProgress: currentIndex,
+    currentProgress: currentIndex + 1,
     totalPhones: phoneNumbers.length,
   });
 
@@ -126,7 +126,7 @@ async function processNextPhone() {
 
       // Clear cookies for facebook.com
       await clearFacebookCookies();
-      sendLogToSidePanel(`Cookies cleared for ${phoneNumber}`, "info");
+      sendLogToSidePanel(`Cache cleared for ${phoneNumber}`, "info");
 
       // Close the tab
       await chrome.tabs.remove(tab.id);
@@ -257,6 +257,7 @@ async function clearFacebookCookies() {
         ],
       },
       {
+        cache: true,
         cacheStorage: true,
         cookies: true,
         indexedDB: true,
@@ -265,7 +266,7 @@ async function clearFacebookCookies() {
         webSQL: true,
       }
     );
-    // console.log("Cleared all Facebook browsing data");
+    // console.log("Cleared all Facebook browsing data and cache");
   } catch (error) {
     // console.error("Failed to clear browsing data:", error);
   }

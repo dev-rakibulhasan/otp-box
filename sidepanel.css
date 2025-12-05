@@ -114,7 +114,7 @@ textarea:focus {
 .status-value {
   font-size: 16px;
   font-weight: 700;
-  color: #333;
+  color: #667eea;
 }
 
 #status.running {
@@ -123,6 +123,10 @@ textarea:focus {
 
 #status.stopped {
   color: #dc3545;
+}
+
+#status.completed {
+  color: #28a745;
 }
 
 .button-section {
