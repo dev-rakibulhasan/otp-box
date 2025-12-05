@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Box</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>
+          <img
+            src="icons/icon16.png"
+            alt="OTP Box"
+            style="width: 24px; height: 24px; vertical-align: middle"
+          />
+          OTP Box
+        </h1>
+        <p class="subtitle">OTP Automation</p>
+      </div>
+
+      <div class="content">
+        <div class="input-section">
+          <label for="phoneNumbers">Enter Phone Numbers (one per line):</label>
+          <textarea
+            id="phoneNumbers"
+            placeholder="e.g.,&#10;+1234567890&#10;+0987654321&#10;+1122334455"
+            rows="8"
+          ></textarea>
+          <div class="phone-count">
+            <span id="phoneCount">0</span> phone numbers
+          </div>
+        </div>
+
+        <div class="status-section">
+          <div class="status-card">
+            <div class="status-label">Status:</div>
+            <div id="status" class="status-value">Ready</div>
+          </div>
+          <div class="progress-card">
+            <div class="status-label">Progress:</div>
+            <div id="progress" class="status-value">0 / 0</div>
+          </div>
+        </div>
+
+        <div class="button-section">
+          <button id="startBtn" class="btn btn-primary">
+            <span class="btn-icon">▶</span>
+            Start
+          </button>
+          <button id="stopBtn" class="btn btn-danger" disabled>
+            <span class="btn-icon">⏹</span>
+            Stop
+          </button>
+        </div>
+
+        <div class="log-section">
+          <div class="log-header">
+            <span>Activity Log</span>
+            <button id="clearLogBtn" class="btn-clear">Clear</button>
+          </div>
+          <div id="log" class="log-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
