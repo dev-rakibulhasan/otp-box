@@ -63,7 +63,8 @@ startBtn.addEventListener("click", async () => {
       showModal(
         "License Required",
         "Please activate a valid license to use this feature.",
-        true
+        true,
+        "error"
       );
       return;
     }
@@ -73,7 +74,8 @@ startBtn.addEventListener("click", async () => {
       showModal(
         "License Expired",
         `Your license expired on ${expireDate}. Please renew your license to continue.`,
-        true
+        true,
+        "error"
       );
       return;
     }
@@ -232,7 +234,7 @@ verifyLicenseBtn.addEventListener("click", async () => {
   const licenseKey = licenseKeyInput.value.trim();
 
   if (!licenseKey) {
-    showModal("Error", "Please enter a license key.", false);
+    showModal("Required", "Please enter a license key.", false, "error");
     return;
   }
 
@@ -268,18 +270,73 @@ verifyLicenseBtn.addEventListener("click", async () => {
         { [STORAGE_KEY]: encryptData(licenseData) },
         () => {
           loadLicense();
-          showModal("Success", "License activated successfully!", false);
+          showModal(
+            "Activated",
+            "License activated successfully!",
+            false,
+            "success"
+          );
           licenseKeyInput.value = "";
         }
       );
     } else {
-      showModal("Error", data.message || "License verification failed.", false);
+      // Handle different error codes with appropriate modal titles and types
+      let modalTitle = "Verification Failed";
+      let modalType = "error";
+      let modalMessage = data.message || "License verification failed.";
+
+      if (data.code) {
+        switch (data.code) {
+          case "missing_license_key":
+            modalTitle = "Required";
+            modalMessage = "License key is required.";
+            break;
+          case "missing_product_name":
+            modalTitle = "Configuration Error";
+            modalMessage = "Product name is missing.";
+            break;
+          case "invalid_license":
+            modalTitle = "Invalid License";
+            modalMessage = "License key not found.";
+            break;
+          case "invalid_product":
+            modalTitle = "Product Error";
+            modalMessage = "Product not found for this license.";
+            break;
+          case "product_mismatch":
+            modalTitle = "Product Mismatch";
+            modalType = "warning";
+            modalMessage =
+              data.message || "This license is not valid for this product.";
+            break;
+          case "license_expired":
+            modalTitle = "License Expired";
+            modalType = "warning";
+            modalMessage = data.message || "This license has expired.";
+            break;
+          case "license_already_used":
+            modalTitle = "Already Used";
+            modalType = "warning";
+            modalMessage = "This license has already been used.";
+            break;
+          case "database_error":
+            modalTitle = "Server Error";
+            modalMessage = "Failed to update license status. Please try again.";
+            break;
+          default:
+            modalTitle = "Verification Failed";
+            modalMessage = data.message || "License verification failed.";
+        }
+      }
+
+      showModal(modalTitle, modalMessage, false, modalType);
     }
   } catch (error) {
     showModal(
-      "Error",
+      "Connection Failed",
       "Failed to connect to license server: " + error.message,
-      false
+      false,
+      "error"
     );
   } finally {
     verifyLicenseBtn.disabled = false;
@@ -290,12 +347,22 @@ verifyLicenseBtn.addEventListener("click", async () => {
 
 // Deactivate license button
 deactivateLicenseBtn.addEventListener("click", () => {
-  if (confirm("Are you sure you want to deactivate this license?")) {
-    chrome.storage.local.remove(STORAGE_KEY, () => {
-      loadLicense();
-      showModal("Success", "License deactivated successfully.", false);
-    });
-  }
+  showConfirmModal(
+    "Deactivate License",
+    "Are you sure you want to deactivate this license? You will need to reactivate it to use the extension.",
+    "warning",
+    () => {
+      chrome.storage.local.remove(STORAGE_KEY, () => {
+        loadLicense();
+        showModal(
+          "Success",
+          "License deactivated successfully.",
+          false,
+          "success"
+        );
+      });
+    }
+  );
 });
 
 // Load and display license
@@ -307,8 +374,13 @@ function loadLicense() {
       // No license
       licenseStatus.className = "license-status";
       licenseStatus.innerHTML = `
-        <div class="status-icon">🔒</div>
-        <div class="status-text">No license activated</div>
+        <div class="status-icon" style="color: #9e9e9e;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <div class="status-text" style="color: #757575;">No license activated</div>
       `;
       licenseInfo.classList.add("hidden");
       return;
@@ -331,14 +403,25 @@ function loadLicense() {
     if (isExpired) {
       licenseStatus.className = "license-status expired";
       licenseStatus.innerHTML = `
-      <div class="status-icon">⚠️</div>
-      <div class="status-text">License Expired</div>
+      <div class="status-icon" style="color: #f44336;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="status-text" style="color: #c62828;">License Expired</div>
     `;
     } else {
       licenseStatus.className = "license-status active";
       licenseStatus.innerHTML = `
-      <div class="status-icon">✓</div>
-      <div class="status-text">License Active</div>
+      <div class="status-icon" style="color: #4caf50;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div class="status-text" style="color: #2e7d32;">License Active</div>
     `;
     }
 
@@ -346,7 +429,18 @@ function loadLicense() {
     licenseName.textContent = license.name;
     licenseEmail.textContent = license.email;
     licenseProduct.textContent = PRODUCT_NAME;
-    licenseExpire.textContent = license.expire_date;
+
+    // Format expire date
+    if (license.expire_date === "Never") {
+      licenseExpire.textContent = "Never";
+    } else {
+      const expireDate = new Date(license.expire_date);
+      const day = expireDate.getDate();
+      const month = expireDate.toLocaleString("en-US", { month: "short" });
+      const year = expireDate.getFullYear();
+      licenseExpire.textContent = `${day} ${month} ${year}`;
+    }
+
     licenseStatusText.textContent = isExpired ? "Expired" : "Active";
     licenseStatusText.style.color = isExpired ? "#f44336" : "#4CAF50";
 
@@ -382,16 +476,127 @@ function checkLicense(callback) {
   });
 }
 
-// Show modal
-function showModal(title, message, showActionButton) {
+// Store modal action callback
+let modalActionCallback = null;
+
+// Show modal with type (error, success, info, warning)
+function showModal(title, message, showActionButton, type = "info") {
+  // Remove all type classes
+  licenseModal.classList.remove(
+    "modal-error",
+    "modal-success",
+    "modal-info",
+    "modal-warning"
+  );
+
+  // Add type class
+  licenseModal.classList.add(`modal-${type}`);
+
+  // Get icon based on type
+  const icons = {
+    error: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="15" y1="9" x2="9" y2="15"/>
+      <line x1="9" y1="9" x2="15" y2="15"/>
+    </svg>`,
+    success: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>`,
+    info: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="16" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>`,
+    warning: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>`,
+  };
+
+  // Update modal content with icon
+  const modalBody = licenseModal.querySelector(".modal-body");
+  modalBody.innerHTML = `
+    <div class="modal-icon">${icons[type]}</div>
+    <p>${message}</p>
+  `;
+
   modalTitle.textContent = title;
-  modalMessage.textContent = message;
 
   if (showActionButton) {
     modalAction.classList.remove("hidden");
+    modalAction.textContent = "Go to License";
+    modalAction.className = "btn btn-primary";
+
+    // Set callback to switch to license tab
+    modalActionCallback = () => {
+      closeModal();
+      document.querySelector('.tab-btn[data-tab="license"]').click();
+    };
   } else {
     modalAction.classList.add("hidden");
+    modalActionCallback = null;
   }
+
+  licenseModal.classList.remove("hidden");
+}
+
+// Show confirmation modal with callback
+function showConfirmModal(title, message, type = "warning", onConfirm) {
+  // Remove all type classes
+  licenseModal.classList.remove(
+    "modal-error",
+    "modal-success",
+    "modal-info",
+    "modal-warning"
+  );
+
+  // Add type class
+  licenseModal.classList.add(`modal-${type}`);
+
+  // Get icon based on type
+  const icons = {
+    error: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="15" y1="9" x2="9" y2="15"/>
+      <line x1="9" y1="9" x2="15" y2="15"/>
+    </svg>`,
+    success: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>`,
+    info: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="16" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>`,
+    warning: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+      <line x1="12" y1="9" x2="12" y2="13"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>`,
+  };
+
+  // Update modal content with icon
+  const modalBody = licenseModal.querySelector(".modal-body");
+  modalBody.innerHTML = `
+    <div class="modal-icon">${icons[type]}</div>
+    <p>${message}</p>
+  `;
+
+  modalTitle.textContent = title;
+
+  // Show action button and change it to "Deactivate"
+  modalAction.classList.remove("hidden");
+  modalAction.textContent = "Deactivate";
+  modalAction.className = "btn btn-danger";
+
+  // Set callback for confirmation
+  modalActionCallback = () => {
+    closeModal();
+    if (onConfirm) onConfirm();
+  };
 
   licenseModal.classList.remove("hidden");
 }
@@ -404,10 +609,11 @@ function closeModal() {
 modalClose.addEventListener("click", closeModal);
 modalCancel.addEventListener("click", closeModal);
 
+// Handle modal action button click
 modalAction.addEventListener("click", () => {
-  closeModal();
-  // Switch to license tab
-  document.querySelector('.tab-btn[data-tab="license"]').click();
+  if (modalActionCallback) {
+    modalActionCallback();
+  }
 });
 
 // Close modal on outside click
