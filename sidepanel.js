@@ -25,6 +25,15 @@ function getPhoneNumbers() {
     .filter((phone) => phone.length > 0);
 }
 
+// Update clear button visibility
+function updateClearButtonVisibility() {
+  if (logDiv.children.length === 0) {
+    clearLogBtn.style.display = "none";
+  } else {
+    clearLogBtn.style.display = "block";
+  }
+}
+
 // Add log entry
 function addLog(message, type = "info") {
   const entry = document.createElement("div");
@@ -33,12 +42,17 @@ function addLog(message, type = "info") {
   entry.textContent = `[${timestamp}] ${message}`;
   logDiv.appendChild(entry);
   logDiv.scrollTop = logDiv.scrollHeight;
+  updateClearButtonVisibility();
 }
 
 // Clear log
 clearLogBtn.addEventListener("click", () => {
   logDiv.innerHTML = "";
+  updateClearButtonVisibility();
 });
+
+// Initialize clear button visibility
+updateClearButtonVisibility();
 
 // Update status
 function updateStatus(status, isRunningState = false) {
@@ -70,10 +84,14 @@ startBtn.addEventListener("click", async () => {
     }
 
     if (license.isExpired) {
-      const expireDate = new Date(license.expire_date).toLocaleDateString();
+      const expireDate = new Date(license.expire_date);
+      const day = expireDate.getDate();
+      const month = expireDate.toLocaleString("en-US", { month: "short" });
+      const year = expireDate.getFullYear();
+      const formattedDate = `${day} ${month} ${year}`;
       showModal(
         "License Expired",
-        `Your license expired on ${expireDate}. Please renew your license to continue.`,
+        `Your license expired on ${formattedDate}. Please renew your license to continue.`,
         true,
         "error"
       );
@@ -228,6 +246,13 @@ const modalAction = document.getElementById("modalAction");
 
 // Load license on startup
 loadLicense();
+
+// Load and display version from manifest
+const manifestData = chrome.runtime.getManifest();
+document.getElementById("appVersion").textContent = manifestData.version;
+
+// Set current year for copyright
+document.getElementById("copyrightYear").textContent = new Date().getFullYear();
 
 // Verify license button
 verifyLicenseBtn.addEventListener("click", async () => {
