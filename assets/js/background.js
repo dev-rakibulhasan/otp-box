@@ -104,14 +104,8 @@ async function processNextPhone() {
     // Wait for page to load
     await waitForTabLoad(tab.id);
 
-    // Inject phone number as a global variable
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: (phone) => {
-        window.__phoneNumber = phone;
-      },
-      args: [phoneNumber],
-    });
+    // Save current phone number to storage for injected script to access
+    await chrome.storage.local.set({ currentPhoneNumber: phoneNumber });
 
     // Inject and execute the form filling script from file
     await chrome.scripting.executeScript({

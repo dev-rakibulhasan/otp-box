@@ -1,7 +1,11 @@
 // This script will be injected into the page as a file
-// Phone number is passed via window.__phoneNumber
-(function () {
-  const phoneNumber = window.__phoneNumber;
+// Phone number is read from chrome.storage.local
+(async function () {
+  // Get phone number from storage
+  const { currentPhoneNumber } = await chrome.storage.local.get(
+    "currentPhoneNumber"
+  );
+  const phoneNumber = currentPhoneNumber;
 
   // Predefined male first names
   const firstNames = [
