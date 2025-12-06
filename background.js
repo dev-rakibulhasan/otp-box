@@ -1,3 +1,6 @@
+// Import injected scripts (not obfuscated for chrome.scripting.executeScript compatibility)
+importScripts("injected-scripts.js");
+
 let isRunning = false;
 let phoneNumbers = [];
 let currentIndex = 0;
@@ -104,19 +107,11 @@ async function processNextPhone() {
     // Wait for page to load
     await waitForTabLoad(tab.id);
 
-    // Inject phone number as a global variable
+    // Inject and execute the form filling script
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: (phone) => {
-        window.__phoneNumber = phone;
-      },
+      func: fillRegistrationForm,
       args: [phoneNumber],
-    });
-
-    // Inject and execute the form filling script from file
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ["assets/js/injected-scripts.js"],
     });
 
     sendLogToSidePanel(`Form filled for ${phoneNumber}`, "success");
@@ -142,7 +137,7 @@ async function processNextPhone() {
       sendLogToSidePanel(`Completed processing ${phoneNumber}`, "success");
     } else {
       sendLogToSidePanel(
-        `Did not navigate to next page (timeout or error)`,
+        `Did not navigate to confirm email page (timeout or error)`,
         "warning"
       );
 
@@ -202,7 +197,7 @@ function waitForTabLoad(tabId) {
 // Wait for navigation to confirmemail.php
 function waitForConfirmEmailPage(tabId) {
   return new Promise((resolve) => {
-    const listener = (updatedTabId, changeInfo, tab) => {
+    const listener = (updatedTabId, tab) => {
       if (updatedTabId === tabId) {
         // Check if URL contains confirmemail.php
         if (tab.url && tab.url.includes("facebook.com/confirmemail.php")) {
@@ -217,7 +212,7 @@ function waitForConfirmEmailPage(tabId) {
     setTimeout(() => {
       chrome.tabs.onUpdated.removeListener(listener);
       resolve(false);
-    }, 20000);
+    }, 30000);
   });
 }
 
