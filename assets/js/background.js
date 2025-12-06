@@ -121,10 +121,10 @@ async function processNextPhone() {
 
     if (navigatedToConfirm) {
       sendLogToSidePanel(`OTP sent to ${phoneNumber}`, "success");
-      sendLogToSidePanel(`Waiting 3 seconds...`, "info");
+      sendLogToSidePanel(`Waiting 5 seconds...`, "info");
 
-      // Wait 3 seconds on the confirm email page
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      // Wait 5 seconds on the confirm email page
+      await new Promise((resolve) => setTimeout(resolve, 5000));
 
       // Clear cookies for facebook.com
       await clearFacebookCookies();
