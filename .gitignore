@@ -1,5 +1,5 @@
 # Obfuscated Build
-dist/
+otp-box-prod/
 
 # Node modules
 node_modules/

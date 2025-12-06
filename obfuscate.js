@@ -47,8 +47,8 @@ const filesToObfuscate = [
 // Files to copy without obfuscation
 const jsFilesToCopy = [];
 
-// Create dist directory if it doesn't exist
-const distDir = path.join(__dirname, "dist");
+// Create otp-box-prod directory if it doesn't exist
+const distDir = path.join(__dirname, "otp-box-prod");
 if (!fs.existsSync(distDir)) {
   fs.mkdirSync(distDir);
 }
