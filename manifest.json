@@ -24,7 +24,8 @@
     }
   },
   "side_panel": {
-    "default_path": "sidepanel.html"
+    "default_path": "sidepanel.html",
+    "default_width": 400
   },
   "background": {
     "service_worker": "assets/js/background.js"
