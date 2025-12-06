@@ -14,7 +14,7 @@
   "host_permissions": [
     "https://www.facebook.com/*",
     "https://m.facebook.com/*",
-    "http://localhost/rh-license/*"
+    "https://shop.rakibulhasan.dev/*"
   ],
   "action": {
     "default_icon": {

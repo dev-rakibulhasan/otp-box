@@ -189,7 +189,7 @@ chrome.storage.local.get(
 // ============================================
 
 const API_ENDPOINT =
-  "http://localhost/rh-license/index.php/wp-json/rh-license/verify";
+  "https://shop.rakibulhasan.dev/index.php/wp-json/rh-license/verify";
 const PRODUCT_NAME = "OTP Box";
 const STORAGE_KEY = "obLD";
 
